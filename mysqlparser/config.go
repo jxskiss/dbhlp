@@ -14,11 +14,11 @@ type Config struct {
 	}
 
 	Column struct {
-		GoType       func(c *Column) string
-		IsProtobuf   func(c *Column) bool
-		ProtobufType func(c *Column) string
-		IsJSON       func(c *Column) bool
-		JSONType     func(c *Column) string
+		GoType     func(c *Column) string
+		IsProtobuf func(c *Column) bool
+		PBType     func(c *Column) string
+		IsJSON     func(c *Column) bool
+		JSONType   func(c *Column) string
 	}
 }
 

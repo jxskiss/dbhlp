@@ -104,8 +104,8 @@ func (c *Column) IsProtobuf() bool {
 }
 
 func (c *Column) PBType() string {
-	if c.config.Column.ProtobufType != nil {
-		return c.config.Column.ProtobufType(c)
+	if c.config.Column.PBType != nil {
+		return c.config.Column.PBType(c)
 	}
 	return ""
 }

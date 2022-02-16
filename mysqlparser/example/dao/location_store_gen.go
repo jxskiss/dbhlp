@@ -45,7 +45,7 @@ type locationDAOImpl struct {
 }
 
 func (p *locationDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.Location, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Location
 	var out = &model.Location{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -57,7 +57,7 @@ func (p *locationDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) 
 
 func (p *locationDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.Location, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Location
 	var out = &model.Location{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -68,7 +68,7 @@ func (p *locationDAOImpl) GetWhere(ctx context.Context, where string, paramsAndO
 }
 
 func (p *locationDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.LocationList, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Location
 	var out model.LocationList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -80,7 +80,7 @@ func (p *locationDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbge
 
 func (p *locationDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.LocationList, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Location
 	var out model.LocationList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -94,7 +94,7 @@ func (p *locationDAOImpl) Update(ctx context.Context, id int64, updates map[stri
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Location
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

@@ -45,7 +45,7 @@ type vehicleDAOImpl struct {
 }
 
 func (p *vehicleDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.Vehicle, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Vehicle
 	var out = &model.Vehicle{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -57,7 +57,7 @@ func (p *vehicleDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (
 
 func (p *vehicleDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.Vehicle, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Vehicle
 	var out = &model.Vehicle{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -68,7 +68,7 @@ func (p *vehicleDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOp
 }
 
 func (p *vehicleDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.VehicleList, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Vehicle
 	var out model.VehicleList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -80,7 +80,7 @@ func (p *vehicleDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen
 
 func (p *vehicleDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.VehicleList, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Vehicle
 	var out model.VehicleList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -94,7 +94,7 @@ func (p *vehicleDAOImpl) Update(ctx context.Context, id int64, updates map[strin
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Vehicle
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

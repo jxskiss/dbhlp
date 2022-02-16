@@ -7,8 +7,8 @@ import (
 	"gorm.io/plugin/dbresolver"
 )
 
-func PrepareSession(db *gorm.DB, opts ...Opt) *gorm.DB {
-	return new(Options).apply(opts...).prepareSession(db)
+func GetSession(db *gorm.DB, opts ...Opt) *gorm.DB {
+	return new(Options).apply(opts...).getSession(db)
 }
 
 type Options struct {
@@ -33,7 +33,7 @@ func (p *Options) apply(opts ...Opt) *Options {
 	return p
 }
 
-func (p *Options) prepareSession(db *gorm.DB) *gorm.DB {
+func (p *Options) getSession(db *gorm.DB) *gorm.DB {
 	conn := db
 	if p.Tx != nil {
 		conn = p.Tx

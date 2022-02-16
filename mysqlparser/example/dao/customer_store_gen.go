@@ -45,7 +45,7 @@ type customerDAOImpl struct {
 }
 
 func (p *customerDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.Customer, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Customer
 	var out = &model.Customer{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -57,7 +57,7 @@ func (p *customerDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) 
 
 func (p *customerDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.Customer, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Customer
 	var out = &model.Customer{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -68,7 +68,7 @@ func (p *customerDAOImpl) GetWhere(ctx context.Context, where string, paramsAndO
 }
 
 func (p *customerDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.CustomerList, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Customer
 	var out model.CustomerList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -80,7 +80,7 @@ func (p *customerDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbge
 
 func (p *customerDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.CustomerList, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Customer
 	var out model.CustomerList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -94,7 +94,7 @@ func (p *customerDAOImpl) Update(ctx context.Context, id int64, updates map[stri
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Customer
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

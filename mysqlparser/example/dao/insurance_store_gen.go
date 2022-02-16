@@ -45,7 +45,7 @@ type insuranceDAOImpl struct {
 }
 
 func (p *insuranceDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.Insurance, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Insurance
 	var out = &model.Insurance{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -57,7 +57,7 @@ func (p *insuranceDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt)
 
 func (p *insuranceDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.Insurance, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Insurance
 	var out = &model.Insurance{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -68,7 +68,7 @@ func (p *insuranceDAOImpl) GetWhere(ctx context.Context, where string, paramsAnd
 }
 
 func (p *insuranceDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.InsuranceList, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Insurance
 	var out model.InsuranceList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -80,7 +80,7 @@ func (p *insuranceDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbg
 
 func (p *insuranceDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.InsuranceList, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Insurance
 	var out model.InsuranceList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -94,7 +94,7 @@ func (p *insuranceDAOImpl) Update(ctx context.Context, id int64, updates map[str
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Insurance
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

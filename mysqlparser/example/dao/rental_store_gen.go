@@ -45,7 +45,7 @@ type rentalDAOImpl struct {
 }
 
 func (p *rentalDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.Rental, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Rental
 	var out = &model.Rental{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -57,7 +57,7 @@ func (p *rentalDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*
 
 func (p *rentalDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.Rental, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Rental
 	var out = &model.Rental{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -68,7 +68,7 @@ func (p *rentalDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpt
 }
 
 func (p *rentalDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.RentalList, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Rental
 	var out model.RentalList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -80,7 +80,7 @@ func (p *rentalDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.
 
 func (p *rentalDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.RentalList, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Rental
 	var out model.RentalList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -94,7 +94,7 @@ func (p *rentalDAOImpl) Update(ctx context.Context, id int64, updates map[string
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_Rental
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

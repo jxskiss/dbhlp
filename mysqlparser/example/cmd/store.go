@@ -185,7 +185,7 @@ type {{ .Table.DaoImplName }} struct {
 
 	mustParse("Get", `
 func (p *{{ .DaoImplName }}) Get(ctx context.Context, {{ .PKVarName }} int64, opts ...dbgen.Opt) (*{{ .PkgPrefix }}{{ .TypeName }}, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out = &{{ .PkgPrefix }}{{ .TypeName }}{}
 	err := conn.WithContext(ctx).Table(tableName).Where("{{ .PrimaryKey }} = ?", {{ .PKVarName }}).First(out).Error
@@ -199,7 +199,7 @@ func (p *{{ .DaoImplName }}) Get(ctx context.Context, {{ .PKVarName }} int64, op
 	mustParse("GetWhere", `
 func (p *{{ .DaoImplName }}) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*{{ .PkgPrefix }}{{ .TypeName }}, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out = &{{ .PkgPrefix }}{{ .TypeName }}{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -212,7 +212,7 @@ func (p *{{ .DaoImplName }}) GetWhere(ctx context.Context, where string, paramsA
 
 	mustParse("MGet", `
 func (p *{{ .DaoImplName }}) MGet(ctx context.Context, {{ .PKVarName }}List []int64, opts ...dbgen.Opt) ({{ .PkgPrefix }}{{ .TypeName }}List, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out {{ .PkgPrefix }}{{ .TypeName }}List
 	err := conn.WithContext(ctx).Table(tableName).Where("{{ .PrimaryKey }} in (?)", {{ .PKVarName }}List).Find(&out).Error
@@ -225,7 +225,7 @@ func (p *{{ .DaoImplName }}) MGet(ctx context.Context, {{ .PKVarName }}List []in
 	mustParse("MGetWhere", `
 func (p *{{ .DaoImplName }}) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) ({{ .PkgPrefix }}{{ .TypeName }}List, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out {{ .PkgPrefix }}{{ .TypeName }}List
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -238,7 +238,7 @@ func (p *{{ .DaoImplName }}) MGetWhere(ctx context.Context, where string, params
 
 	mustParse("Create", `
 func (p *{{ .DaoImplName }}) Create(ctx context.Context, {{ .VarName }} *{{ .PkgPrefix }}{{ .TypeName }}, opts ...dbgen.Opt) error {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	err := conn.WithContext(ctx).Table(tableName).Create({{ .VarName }}).Error
 	if err != nil {
@@ -253,7 +253,7 @@ func (p *{{ .DaoImplName }}) Update(ctx context.Context, {{ .PKVarName }} int64,
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	err := conn.WithContext(ctx).Table(tableName).Where("{{ .PrimaryKey }} = ?", {{ .PKVarName }}).Updates(updates).Error
 	if err != nil {
@@ -265,7 +265,7 @@ func (p *{{ .DaoImplName }}) Update(ctx context.Context, {{ .PKVarName }} int64,
 
 	mustParse("customGet", `
 func (p *{{ .Table.DaoImplName }}) {{ .FuncName }}(ctx context.Context, {{ .ArgList }}, opts ...dbgen.Opt) (*{{ .Table.PkgPrefix }}{{ .Table.TypeName }}, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out = &{{ .Table.PkgPrefix }}{{ .Table.TypeName }}{}
 	err := conn.WithContext(ctx).Table(tableName).
@@ -280,7 +280,7 @@ func (p *{{ .Table.DaoImplName }}) {{ .FuncName }}(ctx context.Context, {{ .ArgL
 
 	mustParse("customMGet", `
 func (p *{{ .Table.DaoImplName }}) {{ .FuncName }}(ctx context.Context, {{ .ArgList }}, opts ...dbgen.Opt) ({{ .Table.PkgPrefix }}{{ .Table.TypeName }}List, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out {{ .Table.PkgPrefix }}{{ .Table.TypeName }}List
 	err := conn.WithContext(ctx).Table(tableName).

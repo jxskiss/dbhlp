@@ -45,7 +45,7 @@ type fuelOptionDAOImpl struct {
 }
 
 func (p *fuelOptionDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.FuelOption, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_FuelOption
 	var out = &model.FuelOption{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -57,7 +57,7 @@ func (p *fuelOptionDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt
 
 func (p *fuelOptionDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.FuelOption, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_FuelOption
 	var out = &model.FuelOption{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -68,7 +68,7 @@ func (p *fuelOptionDAOImpl) GetWhere(ctx context.Context, where string, paramsAn
 }
 
 func (p *fuelOptionDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.FuelOptionList, error) {
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_FuelOption
 	var out model.FuelOptionList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -80,7 +80,7 @@ func (p *fuelOptionDAOImpl) MGet(ctx context.Context, idList []int64, opts ...db
 
 func (p *fuelOptionDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.FuelOptionList, error) {
 	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_FuelOption
 	var out model.FuelOptionList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -94,7 +94,7 @@ func (p *fuelOptionDAOImpl) Update(ctx context.Context, id int64, updates map[st
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.PrepareSession(p.db, opts...)
+	conn := dbgen.GetSession(p.db, opts...)
 	tableName := tableName_FuelOption
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

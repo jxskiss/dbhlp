@@ -4,27 +4,8 @@
 package model
 
 import (
-	"context"
-	"encoding/json"
-	"log"
 	"time"
-
-	"github.com/jxskiss/dbhlp"
-	"github.com/jxskiss/errors"
-	"github.com/jxskiss/gopkg/v2/utils/sqlutil"
-	"google.golang.org/protobuf/proto"
-	"gorm.io/gorm"
 )
-
-var _ context.Context
-var _ json.Marshaler
-var _ log.Logger
-var _ time.Time
-var _ dbhlp.Opt
-var _ errors.ErrorGroup
-var _ sqlutil.LazyBinary
-var _ gorm.DB
-var _ proto.Message
 
 type Rental struct {
 	Id                int64     `db:"id" gorm:"column:id;primaryKey"`                          // int(11)

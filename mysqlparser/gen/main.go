@@ -1,11 +1,13 @@
 package main
 
 import (
+	"go/format"
 	"os"
 	"path/filepath"
 
 	"github.com/jxskiss/gopkg/v2/easy"
 	"github.com/jxskiss/mcli"
+	"golang.org/x/tools/imports"
 
 	parser "github.com/jxskiss/dbhlp/mysqlparser"
 )
@@ -72,4 +74,20 @@ func writeFile(name string, data []byte, perm os.FileMode) error {
 	//return nil
 
 	return os.WriteFile(name, data, perm)
+}
+
+func formatCode(filename string, code []byte) ([]byte, error) {
+	code, err := format.Source(code)
+	if err != nil {
+		return nil, err
+	}
+	code, err = imports.Process(filename, code, &imports.Options{
+		Comments:  true,
+		TabIndent: true,
+		TabWidth:  4,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return code, nil
 }

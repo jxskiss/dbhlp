@@ -22,15 +22,4 @@ import (
 
 	{{ if .ModelPkg }} "{{ .ModelPkg }}" {{ end }}
 )
-
-var _ context.Context
-var _ json.Marshaler
-var _ log.Logger
-var _ time.Time
-var _ dbhlp.Opt
-var _ errors.ErrorGroup
-var _ sqlutil.LazyBinary
-var _ gorm.DB
-var _ proto.Message
-
 `))

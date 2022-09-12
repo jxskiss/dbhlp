@@ -8,6 +8,7 @@ require (
 	github.com/jxskiss/gopkg/v2 v2.0.0
 	github.com/jxskiss/mcli v0.5.0
 	github.com/pingcap/tidb/parser v0.0.0-20220909161656-12ae85f32b11
+	golang.org/x/tools v0.1.12
 	google.golang.org/protobuf v1.26.0
 	gorm.io/gorm v1.23.8
 )
@@ -18,7 +19,7 @@ require (
 	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.4 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/pingcap/errors v0.11.5-0.20210425183316-da1aaba5fb63 // indirect
 	github.com/pingcap/log v0.0.0-20210625125904-98ed8e2eb1c7 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -28,11 +29,13 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/exp v0.0.0-20220428152302-39d4317da171 // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/hints v1.1.0 // indirect
-	gorm.io/plugin/dbresolver v1.1.0 // indirect
+	gorm.io/plugin/dbresolver v1.2.3 // indirect
 )
 
 replace github.com/jxskiss/dbhlp => ../

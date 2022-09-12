@@ -20,13 +20,18 @@ func generateDAOs(cfg *Config, tables []*parser.Table) {
 	var code []byte
 	for _, t := range tables {
 		code = generateDAOCode(cfg, t)
-		if len(code) == 0 {
-			continue
-		}
 
 		daoPkgName := getBasePkgName(cfg.DAOPkg)
 		customDAOFile := getFileName(cfg.DAOPkg, t.Name+"_store.go")
 		genDAOFile := getFileName(cfg.DAOPkg, t.Name+"_store_gen.go")
+
+		if !cfg.DisableFormat {
+			code, err = formatCode(genDAOFile, code)
+			assertNil(err)
+		}
+		if len(code) == 0 {
+			continue
+		}
 
 		log.Printf("writing dao file: %s", genDAOFile)
 		err = writeFile(genDAOFile, code, 0644)
@@ -98,12 +103,7 @@ func generateDAOCode(cfg *Config, t *parser.Table) []byte {
 		assertNil(err)
 	}
 
-	code := buf.Bytes()
-	if !cfg.DisableFormat {
-		code, err = format.Source(code)
-		assertNil(err)
-	}
-	return code
+	return buf.Bytes()
 }
 
 func getDAOMethods(cfg *Config, t *parser.Table) (methods []string) {

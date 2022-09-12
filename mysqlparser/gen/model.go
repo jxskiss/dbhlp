@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"go/format"
 	"log"
 	"text/template"
 
@@ -18,11 +17,16 @@ func generateModels(cfg *Config, tables []*parser.Table) {
 
 	for _, t := range tables {
 		code = generateModelCode(cfg, t)
+
+		modelFile := getFileName(cfg.ModelPkg, t.Name+"_model_gen.go")
+		if !cfg.DisableFormat {
+			code, err = formatCode(modelFile, code)
+			assertNil(err)
+		}
 		if len(code) == 0 {
 			continue
 		}
 
-		modelFile := getFileName(cfg.ModelPkg, t.Name+"_model_gen.go")
 		log.Printf("writing model file: %s", modelFile)
 		err = writeFile(modelFile, code, 0644)
 		assertNil(err)
@@ -45,12 +49,7 @@ func generateModelCode(cfg *Config, table *parser.Table) []byte {
 	err = modelTmpl.ExecuteTemplate(&buf, "getterSetter", table)
 	assertNil(err)
 
-	code := buf.Bytes()
-	if !cfg.DisableFormat {
-		code, err = format.Source(code)
-		assertNil(err)
-	}
-	return code
+	return buf.Bytes()
 }
 
 // -------- templates -------- //

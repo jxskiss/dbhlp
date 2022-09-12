@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/jxskiss/dbgen"
+	"github.com/jxskiss/dbhlp"
 	"github.com/jxskiss/errors"
 	"github.com/jxskiss/gopkg/v2/sqlutil"
 	"gorm.io/gorm"
@@ -17,7 +17,7 @@ var _ context.Context
 var _ time.Time
 var _ proto.Message
 var _ errors.ErrorGroup
-var _ dbgen.Opt
+var _ dbhlp.Opt
 var _ sqlutil.Bitmap
 var _ gorm.DB
 

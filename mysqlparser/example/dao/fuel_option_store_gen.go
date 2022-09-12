@@ -7,34 +7,34 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/jxskiss/dbgen"
+	"github.com/jxskiss/dbhlp"
 	"github.com/jxskiss/errors"
 	"github.com/jxskiss/gopkg/v2/sqlutil"
 	"gorm.io/gorm"
 
-	"github.com/jxskiss/dbgen/mysqlparser/example/model"
+	"github.com/jxskiss/dbhlp/mysqlparser/example/model"
 )
 
 var _ context.Context
 var _ time.Time
 var _ proto.Message
 var _ errors.ErrorGroup
-var _ dbgen.Opt
+var _ dbhlp.Opt
 var _ sqlutil.Bitmap
 var _ gorm.DB
 
 const tableName_FuelOption = "fuel_option"
 
 type FuelOptionDAO interface {
-	Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.FuelOption, error)
+	Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.FuelOption, error)
 	GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.FuelOption, error)
-	MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.FuelOptionList, error)
+	MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.FuelOptionList, error)
 	MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.FuelOptionList, error)
-	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error
+	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error
 	fuelOptionCustomMethods
 }
 
-func GetFuelOptionDAO(conn dbgen.MySQLConn) FuelOptionDAO {
+func GetFuelOptionDAO(conn dbhlp.MySQLConn) FuelOptionDAO {
 	return &fuelOptionDAOImpl{
 		db: conn,
 	}
@@ -44,8 +44,8 @@ type fuelOptionDAOImpl struct {
 	db *gorm.DB
 }
 
-func (p *fuelOptionDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.FuelOption, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *fuelOptionDAOImpl) Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.FuelOption, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_FuelOption
 	var out = &model.FuelOption{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -56,8 +56,8 @@ func (p *fuelOptionDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt
 }
 
 func (p *fuelOptionDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.FuelOption, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_FuelOption
 	var out = &model.FuelOption{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -67,8 +67,8 @@ func (p *fuelOptionDAOImpl) GetWhere(ctx context.Context, where string, paramsAn
 	return out, nil
 }
 
-func (p *fuelOptionDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.FuelOptionList, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *fuelOptionDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.FuelOptionList, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_FuelOption
 	var out model.FuelOptionList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -79,8 +79,8 @@ func (p *fuelOptionDAOImpl) MGet(ctx context.Context, idList []int64, opts ...db
 }
 
 func (p *fuelOptionDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.FuelOptionList, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_FuelOption
 	var out model.FuelOptionList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -90,11 +90,11 @@ func (p *fuelOptionDAOImpl) MGetWhere(ctx context.Context, where string, paramsA
 	return out, nil
 }
 
-func (p *fuelOptionDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error {
+func (p *fuelOptionDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error {
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.GetSession(p.db, opts...)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_FuelOption
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

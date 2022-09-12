@@ -1,4 +1,4 @@
-package dbgen
+package dbhlp
 
 import "gorm.io/gorm"
 

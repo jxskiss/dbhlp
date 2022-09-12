@@ -8,7 +8,7 @@ import (
 	"os"
 	"text/template"
 
-	parser "github.com/jxskiss/dbgen/mysqlparser"
+	parser "github.com/jxskiss/dbhlp/mysqlparser"
 )
 
 func generateDAOs(args *Args, tables []*parser.Table) {
@@ -114,7 +114,7 @@ func getDAOMethods(args *Args, t *parser.Table) (methods []string) {
 	for _, q := range queries {
 		switch q {
 		case "Get":
-			sig := fmt.Sprintf("Get(ctx context.Context, %s int64, opts ...dbgen.Opt) (*%s%s, error)",
+			sig := fmt.Sprintf("Get(ctx context.Context, %s int64, opts ...dbhlp.Opt) (*%s%s, error)",
 				t.PKVarName(), pkgPrefix, t.TypeName())
 			methods = append(methods, sig)
 		case "GetWhere":
@@ -122,7 +122,7 @@ func getDAOMethods(args *Args, t *parser.Table) (methods []string) {
 				pkgPrefix, t.TypeName())
 			methods = append(methods, sig)
 		case "MGet":
-			sig := fmt.Sprintf("MGet(ctx context.Context, %sList []int64, opts ...dbgen.Opt) (%s%sList, error)",
+			sig := fmt.Sprintf("MGet(ctx context.Context, %sList []int64, opts ...dbhlp.Opt) (%s%sList, error)",
 				t.PKVarName(), pkgPrefix, t.TypeName())
 			methods = append(methods, sig)
 		case "MGetWhere":
@@ -130,21 +130,21 @@ func getDAOMethods(args *Args, t *parser.Table) (methods []string) {
 				pkgPrefix, t.TypeName())
 			methods = append(methods, sig)
 		case "Create":
-			sig := fmt.Sprintf("Create(ctx context.Context, %s *%s%s, opts ...dbgen.Opt) error",
+			sig := fmt.Sprintf("Create(ctx context.Context, %s *%s%s, opts ...dbhlp.Opt) error",
 				t.VarName(), pkgPrefix, t.TypeName())
 			methods = append(methods, sig)
 		case "Update":
-			sig := fmt.Sprintf("Update(ctx context.Context, %s int64, updates map[string]interface{}, opts ...dbgen.Opt) error",
+			sig := fmt.Sprintf("Update(ctx context.Context, %s int64, updates map[string]interface{}, opts ...dbhlp.Opt) error",
 				t.PKVarName())
 			methods = append(methods, sig)
 		default:
 			cq := parser.ParseQuery(t, q)
 			if cq.IsMGet() {
-				sig := fmt.Sprintf("%s(ctx context.Context, %s, opts ...dbgen.Opt) (%s%sList, error)",
+				sig := fmt.Sprintf("%s(ctx context.Context, %s, opts ...dbhlp.Opt) (%s%sList, error)",
 					cq.Name, cq.ArgList(), pkgPrefix, t.TypeName())
 				methods = append(methods, sig)
 			} else {
-				sig := fmt.Sprintf("%s(ctx context.Context, %s, opts ...dbgen.Opt) (*%s%s, error)",
+				sig := fmt.Sprintf("%s(ctx context.Context, %s, opts ...dbhlp.Opt) (*%s%s, error)",
 					cq.Name, cq.ArgList(), pkgPrefix, t.TypeName())
 				methods = append(methods, sig)
 			}
@@ -172,7 +172,7 @@ type {{ .Table.TypeName }}DAO interface {
 	{{ .Table.VarName }}CustomMethods
 }
 
-func Get{{ .Table.TypeName }}DAO(conn dbgen.MySQLConn) {{ .Table.TypeName }}DAO {
+func Get{{ .Table.TypeName }}DAO(conn dbhlp.MySQLConn) {{ .Table.TypeName }}DAO {
 	return &{{ .Table.DaoImplName }}{
 		db: conn,
 	}
@@ -184,8 +184,8 @@ type {{ .Table.DaoImplName }} struct {
 `)
 
 	mustParse("Get", `
-func (p *{{ .DaoImplName }}) Get(ctx context.Context, {{ .PKVarName }} int64, opts ...dbgen.Opt) (*{{ .PkgPrefix }}{{ .TypeName }}, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *{{ .DaoImplName }}) Get(ctx context.Context, {{ .PKVarName }} int64, opts ...dbhlp.Opt) (*{{ .PkgPrefix }}{{ .TypeName }}, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out = &{{ .PkgPrefix }}{{ .TypeName }}{}
 	err := conn.WithContext(ctx).Table(tableName).Where("{{ .PrimaryKey }} = ?", {{ .PKVarName }}).First(out).Error
@@ -198,8 +198,8 @@ func (p *{{ .DaoImplName }}) Get(ctx context.Context, {{ .PKVarName }} int64, op
 
 	mustParse("GetWhere", `
 func (p *{{ .DaoImplName }}) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*{{ .PkgPrefix }}{{ .TypeName }}, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out = &{{ .PkgPrefix }}{{ .TypeName }}{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -211,8 +211,8 @@ func (p *{{ .DaoImplName }}) GetWhere(ctx context.Context, where string, paramsA
 `)
 
 	mustParse("MGet", `
-func (p *{{ .DaoImplName }}) MGet(ctx context.Context, {{ .PKVarName }}List []int64, opts ...dbgen.Opt) ({{ .PkgPrefix }}{{ .TypeName }}List, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *{{ .DaoImplName }}) MGet(ctx context.Context, {{ .PKVarName }}List []int64, opts ...dbhlp.Opt) ({{ .PkgPrefix }}{{ .TypeName }}List, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out {{ .PkgPrefix }}{{ .TypeName }}List
 	err := conn.WithContext(ctx).Table(tableName).Where("{{ .PrimaryKey }} in (?)", {{ .PKVarName }}List).Find(&out).Error
@@ -224,8 +224,8 @@ func (p *{{ .DaoImplName }}) MGet(ctx context.Context, {{ .PKVarName }}List []in
 `)
 	mustParse("MGetWhere", `
 func (p *{{ .DaoImplName }}) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) ({{ .PkgPrefix }}{{ .TypeName }}List, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out {{ .PkgPrefix }}{{ .TypeName }}List
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -237,8 +237,8 @@ func (p *{{ .DaoImplName }}) MGetWhere(ctx context.Context, where string, params
 `)
 
 	mustParse("Create", `
-func (p *{{ .DaoImplName }}) Create(ctx context.Context, {{ .VarName }} *{{ .PkgPrefix }}{{ .TypeName }}, opts ...dbgen.Opt) error {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *{{ .DaoImplName }}) Create(ctx context.Context, {{ .VarName }} *{{ .PkgPrefix }}{{ .TypeName }}, opts ...dbhlp.Opt) error {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	err := conn.WithContext(ctx).Table(tableName).Create({{ .VarName }}).Error
 	if err != nil {
@@ -249,11 +249,11 @@ func (p *{{ .DaoImplName }}) Create(ctx context.Context, {{ .VarName }} *{{ .Pkg
 `)
 
 	mustParse("Update", `
-func (p *{{ .DaoImplName }}) Update(ctx context.Context, {{ .PKVarName }} int64, updates map[string]interface{}, opts ...dbgen.Opt) error {
+func (p *{{ .DaoImplName }}) Update(ctx context.Context, {{ .PKVarName }} int64, updates map[string]interface{}, opts ...dbhlp.Opt) error {
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.GetSession(p.db, opts...)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	err := conn.WithContext(ctx).Table(tableName).Where("{{ .PrimaryKey }} = ?", {{ .PKVarName }}).Updates(updates).Error
 	if err != nil {
@@ -264,8 +264,8 @@ func (p *{{ .DaoImplName }}) Update(ctx context.Context, {{ .PKVarName }} int64,
 `)
 
 	mustParse("customGet", `
-func (p *{{ .Table.DaoImplName }}) {{ .FuncName }}(ctx context.Context, {{ .ArgList }}, opts ...dbgen.Opt) (*{{ .Table.PkgPrefix }}{{ .Table.TypeName }}, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *{{ .Table.DaoImplName }}) {{ .FuncName }}(ctx context.Context, {{ .ArgList }}, opts ...dbhlp.Opt) (*{{ .Table.PkgPrefix }}{{ .Table.TypeName }}, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out = &{{ .Table.PkgPrefix }}{{ .Table.TypeName }}{}
 	err := conn.WithContext(ctx).Table(tableName).
@@ -279,8 +279,8 @@ func (p *{{ .Table.DaoImplName }}) {{ .FuncName }}(ctx context.Context, {{ .ArgL
 `)
 
 	mustParse("customMGet", `
-func (p *{{ .Table.DaoImplName }}) {{ .FuncName }}(ctx context.Context, {{ .ArgList }}, opts ...dbgen.Opt) ({{ .Table.PkgPrefix }}{{ .Table.TypeName }}List, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *{{ .Table.DaoImplName }}) {{ .FuncName }}(ctx context.Context, {{ .ArgList }}, opts ...dbhlp.Opt) ({{ .Table.PkgPrefix }}{{ .Table.TypeName }}List, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := {{ .TableNameConst }}
 	var out {{ .Table.PkgPrefix }}{{ .Table.TypeName }}List
 	err := conn.WithContext(ctx).Table(tableName).

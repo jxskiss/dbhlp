@@ -7,7 +7,7 @@ import (
 	"os"
 	"text/template"
 
-	parser "github.com/jxskiss/dbgen/mysqlparser"
+	parser "github.com/jxskiss/dbhlp/mysqlparser"
 )
 
 func generateModels(args *Args, tables []*parser.Table) {

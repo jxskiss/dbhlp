@@ -7,34 +7,34 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/jxskiss/dbgen"
+	"github.com/jxskiss/dbhlp"
 	"github.com/jxskiss/errors"
 	"github.com/jxskiss/gopkg/v2/sqlutil"
 	"gorm.io/gorm"
 
-	"github.com/jxskiss/dbgen/mysqlparser/example/model"
+	"github.com/jxskiss/dbhlp/mysqlparser/example/model"
 )
 
 var _ context.Context
 var _ time.Time
 var _ proto.Message
 var _ errors.ErrorGroup
-var _ dbgen.Opt
+var _ dbhlp.Opt
 var _ sqlutil.Bitmap
 var _ gorm.DB
 
 const tableName_EquipmentType = "equipment_type"
 
 type EquipmentTypeDAO interface {
-	Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.EquipmentType, error)
+	Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.EquipmentType, error)
 	GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.EquipmentType, error)
-	MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.EquipmentTypeList, error)
+	MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.EquipmentTypeList, error)
 	MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.EquipmentTypeList, error)
-	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error
+	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error
 	equipmentTypeCustomMethods
 }
 
-func GetEquipmentTypeDAO(conn dbgen.MySQLConn) EquipmentTypeDAO {
+func GetEquipmentTypeDAO(conn dbhlp.MySQLConn) EquipmentTypeDAO {
 	return &equipmentTypeDAOImpl{
 		db: conn,
 	}
@@ -44,8 +44,8 @@ type equipmentTypeDAOImpl struct {
 	db *gorm.DB
 }
 
-func (p *equipmentTypeDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.EquipmentType, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *equipmentTypeDAOImpl) Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.EquipmentType, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_EquipmentType
 	var out = &model.EquipmentType{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -56,8 +56,8 @@ func (p *equipmentTypeDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.
 }
 
 func (p *equipmentTypeDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.EquipmentType, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_EquipmentType
 	var out = &model.EquipmentType{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -67,8 +67,8 @@ func (p *equipmentTypeDAOImpl) GetWhere(ctx context.Context, where string, param
 	return out, nil
 }
 
-func (p *equipmentTypeDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.EquipmentTypeList, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *equipmentTypeDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.EquipmentTypeList, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_EquipmentType
 	var out model.EquipmentTypeList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -79,8 +79,8 @@ func (p *equipmentTypeDAOImpl) MGet(ctx context.Context, idList []int64, opts ..
 }
 
 func (p *equipmentTypeDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.EquipmentTypeList, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_EquipmentType
 	var out model.EquipmentTypeList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -90,11 +90,11 @@ func (p *equipmentTypeDAOImpl) MGetWhere(ctx context.Context, where string, para
 	return out, nil
 }
 
-func (p *equipmentTypeDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error {
+func (p *equipmentTypeDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error {
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.GetSession(p.db, opts...)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_EquipmentType
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

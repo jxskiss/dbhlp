@@ -7,34 +7,34 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/jxskiss/dbgen"
+	"github.com/jxskiss/dbhlp"
 	"github.com/jxskiss/errors"
 	"github.com/jxskiss/gopkg/v2/sqlutil"
 	"gorm.io/gorm"
 
-	"github.com/jxskiss/dbgen/mysqlparser/example/model"
+	"github.com/jxskiss/dbhlp/mysqlparser/example/model"
 )
 
 var _ context.Context
 var _ time.Time
 var _ proto.Message
 var _ errors.ErrorGroup
-var _ dbgen.Opt
+var _ dbhlp.Opt
 var _ sqlutil.Bitmap
 var _ gorm.DB
 
 const tableName_Customer = "customer"
 
 type CustomerDAO interface {
-	Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.Customer, error)
+	Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.Customer, error)
 	GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.Customer, error)
-	MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.CustomerList, error)
+	MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.CustomerList, error)
 	MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.CustomerList, error)
-	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error
+	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error
 	customerCustomMethods
 }
 
-func GetCustomerDAO(conn dbgen.MySQLConn) CustomerDAO {
+func GetCustomerDAO(conn dbhlp.MySQLConn) CustomerDAO {
 	return &customerDAOImpl{
 		db: conn,
 	}
@@ -44,8 +44,8 @@ type customerDAOImpl struct {
 	db *gorm.DB
 }
 
-func (p *customerDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.Customer, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *customerDAOImpl) Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.Customer, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Customer
 	var out = &model.Customer{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -56,8 +56,8 @@ func (p *customerDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) 
 }
 
 func (p *customerDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.Customer, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Customer
 	var out = &model.Customer{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -67,8 +67,8 @@ func (p *customerDAOImpl) GetWhere(ctx context.Context, where string, paramsAndO
 	return out, nil
 }
 
-func (p *customerDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.CustomerList, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *customerDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.CustomerList, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Customer
 	var out model.CustomerList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -79,8 +79,8 @@ func (p *customerDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbge
 }
 
 func (p *customerDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.CustomerList, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Customer
 	var out model.CustomerList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -90,11 +90,11 @@ func (p *customerDAOImpl) MGetWhere(ctx context.Context, where string, paramsAnd
 	return out, nil
 }
 
-func (p *customerDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error {
+func (p *customerDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error {
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.GetSession(p.db, opts...)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Customer
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

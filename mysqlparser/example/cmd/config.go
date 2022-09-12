@@ -1,6 +1,6 @@
 package main
 
-import parser "github.com/jxskiss/dbgen/mysqlparser"
+import parser "github.com/jxskiss/dbhlp/mysqlparser"
 
 type Config struct {
 	args *Args

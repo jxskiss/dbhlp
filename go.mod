@@ -1,4 +1,4 @@
-module github.com/jxskiss/dbgen
+module github.com/jxskiss/dbhlp
 
 go 1.18
 

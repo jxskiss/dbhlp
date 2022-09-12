@@ -1,10 +1,10 @@
-module github.com/jxskiss/dbgen/mysqlparser
+module github.com/jxskiss/dbhlp/mysqlparser
 
 go 1.18
 
 require (
 	github.com/golang/protobuf v1.5.2
-	github.com/jxskiss/dbgen v0.0.0-00010101000000-000000000000
+	github.com/jxskiss/dbhlp v0.0.0-00010101000000-000000000000
 	github.com/jxskiss/errors v0.15.0
 	github.com/jxskiss/gopkg/v2 v2.0.0-20220206022852-f6b1734466c8
 	github.com/jxskiss/mcli v0.1.0
@@ -29,4 +29,4 @@ require (
 	gorm.io/plugin/dbresolver v1.1.0 // indirect
 )
 
-replace github.com/jxskiss/dbgen => ../
+replace github.com/jxskiss/dbhlp => ../

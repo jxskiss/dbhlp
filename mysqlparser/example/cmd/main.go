@@ -7,7 +7,7 @@ import (
 	"github.com/jxskiss/gopkg/v2/easy"
 	"github.com/jxskiss/mcli"
 
-	parser "github.com/jxskiss/dbgen/mysqlparser"
+	parser "github.com/jxskiss/dbhlp/mysqlparser"
 )
 
 type Args struct {

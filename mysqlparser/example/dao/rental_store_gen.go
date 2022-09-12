@@ -7,34 +7,34 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/jxskiss/dbgen"
+	"github.com/jxskiss/dbhlp"
 	"github.com/jxskiss/errors"
 	"github.com/jxskiss/gopkg/v2/sqlutil"
 	"gorm.io/gorm"
 
-	"github.com/jxskiss/dbgen/mysqlparser/example/model"
+	"github.com/jxskiss/dbhlp/mysqlparser/example/model"
 )
 
 var _ context.Context
 var _ time.Time
 var _ proto.Message
 var _ errors.ErrorGroup
-var _ dbgen.Opt
+var _ dbhlp.Opt
 var _ sqlutil.Bitmap
 var _ gorm.DB
 
 const tableName_Rental = "rental"
 
 type RentalDAO interface {
-	Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.Rental, error)
+	Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.Rental, error)
 	GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.Rental, error)
-	MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.RentalList, error)
+	MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.RentalList, error)
 	MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.RentalList, error)
-	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error
+	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error
 	rentalCustomMethods
 }
 
-func GetRentalDAO(conn dbgen.MySQLConn) RentalDAO {
+func GetRentalDAO(conn dbhlp.MySQLConn) RentalDAO {
 	return &rentalDAOImpl{
 		db: conn,
 	}
@@ -44,8 +44,8 @@ type rentalDAOImpl struct {
 	db *gorm.DB
 }
 
-func (p *rentalDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.Rental, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *rentalDAOImpl) Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.Rental, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Rental
 	var out = &model.Rental{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -56,8 +56,8 @@ func (p *rentalDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*
 }
 
 func (p *rentalDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.Rental, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Rental
 	var out = &model.Rental{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -67,8 +67,8 @@ func (p *rentalDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpt
 	return out, nil
 }
 
-func (p *rentalDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.RentalList, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *rentalDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.RentalList, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Rental
 	var out model.RentalList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -79,8 +79,8 @@ func (p *rentalDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.
 }
 
 func (p *rentalDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.RentalList, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Rental
 	var out model.RentalList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -90,11 +90,11 @@ func (p *rentalDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOp
 	return out, nil
 }
 
-func (p *rentalDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error {
+func (p *rentalDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error {
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.GetSession(p.db, opts...)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Rental
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

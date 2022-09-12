@@ -7,34 +7,34 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/jxskiss/dbgen"
+	"github.com/jxskiss/dbhlp"
 	"github.com/jxskiss/errors"
 	"github.com/jxskiss/gopkg/v2/sqlutil"
 	"gorm.io/gorm"
 
-	"github.com/jxskiss/dbgen/mysqlparser/example/model"
+	"github.com/jxskiss/dbhlp/mysqlparser/example/model"
 )
 
 var _ context.Context
 var _ time.Time
 var _ proto.Message
 var _ errors.ErrorGroup
-var _ dbgen.Opt
+var _ dbhlp.Opt
 var _ sqlutil.Bitmap
 var _ gorm.DB
 
 const tableName_RentalInvoice = "rental_invoice"
 
 type RentalInvoiceDAO interface {
-	Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.RentalInvoice, error)
+	Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.RentalInvoice, error)
 	GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.RentalInvoice, error)
-	MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.RentalInvoiceList, error)
+	MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.RentalInvoiceList, error)
 	MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.RentalInvoiceList, error)
-	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error
+	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error
 	rentalInvoiceCustomMethods
 }
 
-func GetRentalInvoiceDAO(conn dbgen.MySQLConn) RentalInvoiceDAO {
+func GetRentalInvoiceDAO(conn dbhlp.MySQLConn) RentalInvoiceDAO {
 	return &rentalInvoiceDAOImpl{
 		db: conn,
 	}
@@ -44,8 +44,8 @@ type rentalInvoiceDAOImpl struct {
 	db *gorm.DB
 }
 
-func (p *rentalInvoiceDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.RentalInvoice, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *rentalInvoiceDAOImpl) Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.RentalInvoice, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_RentalInvoice
 	var out = &model.RentalInvoice{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -56,8 +56,8 @@ func (p *rentalInvoiceDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.
 }
 
 func (p *rentalInvoiceDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.RentalInvoice, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_RentalInvoice
 	var out = &model.RentalInvoice{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -67,8 +67,8 @@ func (p *rentalInvoiceDAOImpl) GetWhere(ctx context.Context, where string, param
 	return out, nil
 }
 
-func (p *rentalInvoiceDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.RentalInvoiceList, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *rentalInvoiceDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.RentalInvoiceList, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_RentalInvoice
 	var out model.RentalInvoiceList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -79,8 +79,8 @@ func (p *rentalInvoiceDAOImpl) MGet(ctx context.Context, idList []int64, opts ..
 }
 
 func (p *rentalInvoiceDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.RentalInvoiceList, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_RentalInvoice
 	var out model.RentalInvoiceList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -90,11 +90,11 @@ func (p *rentalInvoiceDAOImpl) MGetWhere(ctx context.Context, where string, para
 	return out, nil
 }
 
-func (p *rentalInvoiceDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error {
+func (p *rentalInvoiceDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error {
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.GetSession(p.db, opts...)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_RentalInvoice
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

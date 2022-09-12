@@ -7,34 +7,34 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/jxskiss/dbgen"
+	"github.com/jxskiss/dbhlp"
 	"github.com/jxskiss/errors"
 	"github.com/jxskiss/gopkg/v2/sqlutil"
 	"gorm.io/gorm"
 
-	"github.com/jxskiss/dbgen/mysqlparser/example/model"
+	"github.com/jxskiss/dbhlp/mysqlparser/example/model"
 )
 
 var _ context.Context
 var _ time.Time
 var _ proto.Message
 var _ errors.ErrorGroup
-var _ dbgen.Opt
+var _ dbhlp.Opt
 var _ sqlutil.Bitmap
 var _ gorm.DB
 
 const tableName_Location = "location"
 
 type LocationDAO interface {
-	Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.Location, error)
+	Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.Location, error)
 	GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.Location, error)
-	MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.LocationList, error)
+	MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.LocationList, error)
 	MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.LocationList, error)
-	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error
+	Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error
 	locationCustomMethods
 }
 
-func GetLocationDAO(conn dbgen.MySQLConn) LocationDAO {
+func GetLocationDAO(conn dbhlp.MySQLConn) LocationDAO {
 	return &locationDAOImpl{
 		db: conn,
 	}
@@ -44,8 +44,8 @@ type locationDAOImpl struct {
 	db *gorm.DB
 }
 
-func (p *locationDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) (*model.Location, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *locationDAOImpl) Get(ctx context.Context, id int64, opts ...dbhlp.Opt) (*model.Location, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Location
 	var out = &model.Location{}
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).First(out).Error
@@ -56,8 +56,8 @@ func (p *locationDAOImpl) Get(ctx context.Context, id int64, opts ...dbgen.Opt) 
 }
 
 func (p *locationDAOImpl) GetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (*model.Location, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Location
 	var out = &model.Location{}
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).First(out).Error
@@ -67,8 +67,8 @@ func (p *locationDAOImpl) GetWhere(ctx context.Context, where string, paramsAndO
 	return out, nil
 }
 
-func (p *locationDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbgen.Opt) (model.LocationList, error) {
-	conn := dbgen.GetSession(p.db, opts...)
+func (p *locationDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbhlp.Opt) (model.LocationList, error) {
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Location
 	var out model.LocationList
 	err := conn.WithContext(ctx).Table(tableName).Where("id in (?)", idList).Find(&out).Error
@@ -79,8 +79,8 @@ func (p *locationDAOImpl) MGet(ctx context.Context, idList []int64, opts ...dbge
 }
 
 func (p *locationDAOImpl) MGetWhere(ctx context.Context, where string, paramsAndOpts ...interface{}) (model.LocationList, error) {
-	params, opts := dbgen.SplitOpts(paramsAndOpts)
-	conn := dbgen.GetSession(p.db, opts...)
+	params, opts := dbhlp.SplitOpts(paramsAndOpts)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Location
 	var out model.LocationList
 	err := conn.WithContext(ctx).Table(tableName).Where(where, params...).Find(&out).Error
@@ -90,11 +90,11 @@ func (p *locationDAOImpl) MGetWhere(ctx context.Context, where string, paramsAnd
 	return out, nil
 }
 
-func (p *locationDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbgen.Opt) error {
+func (p *locationDAOImpl) Update(ctx context.Context, id int64, updates map[string]interface{}, opts ...dbhlp.Opt) error {
 	if len(updates) == 0 {
 		return errors.New("programming error: empty updates map")
 	}
-	conn := dbgen.GetSession(p.db, opts...)
+	conn := dbhlp.GetSession(p.db, opts...)
 	tableName := tableName_Location
 	err := conn.WithContext(ctx).Table(tableName).Where("id = ?", id).Updates(updates).Error
 	if err != nil {

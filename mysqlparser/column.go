@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jxskiss/gopkg/v2/strutil"
-	"github.com/pingcap/parser/ast"
+	"github.com/jxskiss/gopkg/v2/utils/strutil"
+	"github.com/pingcap/tidb/parser/ast"
 )
 
 type Column struct {
@@ -45,6 +45,15 @@ func (c *Column) GoType() string {
 	configType := c.config.getColumnGoType(c)
 	if configType != "" {
 		return configType
+	}
+	if c.IsBitmap() {
+		return "sqlutil.Bitmap[int]"
+	}
+	if c.IsBool() {
+		return "bool"
+	}
+	if c.IsProtobuf() || c.IsJSON() {
+		return "sqlutil.LazyBinary"
 	}
 	defaultType := c.defaultGoType()
 	if c.Table.PrimaryKey() == c.Name && defaultType == "int" {
@@ -96,6 +105,20 @@ func (c *Column) defaultGoType() string {
 	panic(fmt.Sprintf("unsupported db type %q", dbType))
 }
 
+func (c *Column) IsBitmap() bool {
+	if c.config.Column.IsBitmap != nil {
+		return c.config.Column.IsBitmap(c)
+	}
+	return false
+}
+
+func (c *Column) IsBool() bool {
+	if c.config.Column.IsBool != nil {
+		return c.config.Column.IsBool(c)
+	}
+	return false
+}
+
 func (c *Column) IsProtobuf() bool {
 	if c.config.Column.IsProtobuf != nil {
 		return c.config.Column.IsProtobuf(c)
@@ -122,7 +145,9 @@ func (c *Column) JSONType() string {
 		return ""
 	}
 	if c.config.Column.JSONType != nil {
-		return c.config.Column.JSONType(c)
+		if typ := c.config.Column.JSONType(c); typ != "" {
+			return typ
+		}
 	}
-	return "gemap.Map"
+	return "sqlutil.JSON"
 }

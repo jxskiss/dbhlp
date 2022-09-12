@@ -5,8 +5,8 @@ import "path/filepath"
 type Config struct {
 	Charset   string
 	Collation string
-	ModelPkg  string
 	DAOPkg    string
+	ModelPkg  string
 
 	Table struct {
 		TypeName func(t *Table) string
@@ -15,6 +15,8 @@ type Config struct {
 
 	Column struct {
 		GoType     func(c *Column) string
+		IsBitmap   func(c *Column) bool
+		IsBool     func(c *Column) bool
 		IsProtobuf func(c *Column) bool
 		PBType     func(c *Column) string
 		IsJSON     func(c *Column) bool
@@ -23,10 +25,20 @@ type Config struct {
 }
 
 func (c *Config) getQueries(t *Table) []string {
-	if c != nil && c.Table.Queries != nil {
-		return c.Table.Queries(t)
+	if c == nil || c.Table.Queries == nil {
+		return c.DefaultQueries(t)
 	}
-	return c.DefaultQueries(t)
+
+	var result []string
+	cfgQueries := c.Table.Queries(t)
+	for _, q := range cfgQueries {
+		if q == "@default" {
+			result = append(result, c.DefaultQueries(t)...)
+			continue
+		}
+		result = append(result, q)
+	}
+	return result
 }
 
 func (c *Config) DefaultQueries(t *Table) []string {

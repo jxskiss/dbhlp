@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -ex
+
+SRC_DIR=$(cd $(dirname ${BASH_SOURCE[0]}); pwd)
+TMPBIN=/tmp/tmpbin_dbhlpgen
+
+# build and run the binary
+sh -c "cd $SRC_DIR && go build -o $TMPBIN"
+$TMPBIN "$@"

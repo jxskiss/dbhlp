@@ -79,12 +79,14 @@ func (a QueryArg) Placeholder() string {
 }
 
 type Query struct {
-	Name string
-	Args []QueryArg
+	isMany bool
+	Name   string
+	Args   []QueryArg
+	Table  *Table
 }
 
-func (q *Query) IsMGet() bool {
-	return strings.HasPrefix(q.Name, "MGet")
+func (q *Query) IsMany() bool {
+	return q.isMany || strings.HasPrefix(q.Name, "MGet")
 }
 
 func (q *Query) ArgList() string {
@@ -93,7 +95,7 @@ func (q *Query) ArgList() string {
 		if i > 0 {
 			buf.WriteString(", ")
 		}
-		buf.WriteString(fmt.Sprintf("%s %s, ", arg.VarName(), arg.GoType()))
+		buf.WriteString(fmt.Sprintf("%s %s", arg.VarName(), arg.GoType()))
 	}
 	return buf.String()
 }
@@ -117,23 +119,30 @@ func (q *Query) Where() string {
 	return buf.String()
 }
 
-var queryRE = regexp.MustCompile(`^(\w+)\(([^)]+)\)$`)
+var queryRE = regexp.MustCompile(`^((?:many|one):)?(\w+)\(([^)]+)\)$`)
 
 var argsRE = regexp.MustCompile(`^(\w+(?:\.\w+)?)(?:,\s*(\w+(?:\.\w+)?))*$`)
 
 func ParseQuery(t *Table, q string) *Query {
 	match := queryRE.FindStringSubmatch(q)
-	if len(match) < 3 {
+	if len(match) < 4 {
 		panic(fmt.Sprintf("query definition is invalid: %q", q))
 	}
-	name := match[1]
-	argsStr := match[2]
+
+	oneOrMany := match[1]
+	isMany := oneOrMany == "many:"
+	name := match[2]
+	argsStr := match[3]
 	argsMatch := argsRE.FindStringSubmatch(argsStr)
 	if len(argsMatch) < 1 {
 		panic(fmt.Sprintf("query definition is invalid: %q", q))
 	}
+
 	var args []QueryArg
 	for i := 1; i < len(argsMatch); i++ {
+		if argsMatch[i] == "" && i == len(argsMatch)-1 {
+			break
+		}
 		parts := strings.SplitN(argsMatch[i], ".", 2)
 		colName := parts[0]
 		col := t.GetColumn(colName)
@@ -154,7 +163,9 @@ func ParseQuery(t *Table, q string) *Query {
 		})
 	}
 	return &Query{
-		Name: name,
-		Args: args,
+		isMany: isMany,
+		Name:   name,
+		Args:   args,
+		Table:  t,
 	}
 }

@@ -13,17 +13,15 @@ import (
 type Args struct {
 	SQLFile       string `cli:"#R, -f, -sql-file, SQL file name"`
 	ConfigFile    string `cli:"-c, -config-file, YAML config file name"`
-	ModelPkg      string `cli:"-model-pkg, full name of generated model package"`
-	DAOPkg        string `cli:"#R, -dao-pkg, full name of generated dao package"`
-	DisableFormat bool   `cli:"#H, -disable-format, don't format go code"`
+	DAOPkg        string `cli:"-dao-pkg, full name of generated dao package, overwrite value in YAML config file"`
+	ModelPkg      string `cli:"-model-pkg, full name of generated model package, overwrite value in YAML config file"`
+	DisableFormat bool   `cli:"-disable-format, don't format go code"`
 }
 
 func main() {
 	args := &Args{}
 	mcli.Parse(args)
-
-	// TODO: config
-	config := &Config{args: args}
+	config := readConfig(args)
 
 	sqlText, err := os.ReadFile(args.SQLFile)
 	easy.PanicOnError(err)
@@ -31,9 +29,9 @@ func main() {
 	tables, err := parser.ParseTables(string(sqlText), config.ToParserConfig())
 	easy.PanicOnError(err)
 
-	generateModels(args, tables)
+	generateModels(config, tables)
 
-	generateDAOs(args, tables)
+	generateDAOs(config, tables)
 }
 
 func getBasePkgName(fullPkgName string) string {
@@ -55,4 +53,23 @@ func assertNil(args ...interface{}) {
 			panic(err)
 		}
 	}
+}
+
+func mkdirIfNotExists(dir string, perm os.FileMode) error {
+	if perm == 0 {
+		perm = 0755
+	}
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		return os.MkdirAll(dir, perm)
+	} else {
+		return err
+	}
+}
+
+func writeFile(name string, data []byte, perm os.FileMode) error {
+
+	//log.Printf("MOCK: writeFile: %v", name)
+	//return nil
+
+	return os.WriteFile(name, data, perm)
 }

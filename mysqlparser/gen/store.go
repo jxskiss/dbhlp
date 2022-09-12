@@ -11,20 +11,25 @@ import (
 	parser "github.com/jxskiss/dbhlp/mysqlparser"
 )
 
-func generateDAOs(args *Args, tables []*parser.Table) {
+func generateDAOs(cfg *Config, tables []*parser.Table) {
+
+	dirName := getFileName(cfg.DAOPkg, "")
+	err := mkdirIfNotExists(dirName, 0)
+	assertNil(err)
+
 	var code []byte
 	for _, t := range tables {
-		code = generateDAOCode(args, t)
+		code = generateDAOCode(cfg, t)
 		if len(code) == 0 {
 			continue
 		}
 
-		daoPkgName := getBasePkgName(args.DAOPkg)
-		customDAOFile := getFileName(args.DAOPkg, t.Name+"_store.go")
-		genDAOFile := getFileName(args.DAOPkg, t.Name+"_store_gen.go")
+		daoPkgName := getBasePkgName(cfg.DAOPkg)
+		customDAOFile := getFileName(cfg.DAOPkg, t.Name+"_store.go")
+		genDAOFile := getFileName(cfg.DAOPkg, t.Name+"_store_gen.go")
 
 		log.Printf("writing dao file: %s", genDAOFile)
-		err := os.WriteFile(genDAOFile, code, 0644)
+		err = writeFile(genDAOFile, code, 0644)
 		assertNil(err)
 
 		touchCustomDAOFile(customDAOFile, daoPkgName, t)
@@ -47,25 +52,25 @@ func touchCustomDAOFile(filename string, pkgName string, table *parser.Table) {
 	code, _ = format.Source(code)
 
 	log.Printf("writing dao file: %s", filename)
-	err := os.WriteFile(filename, code, 0644)
+	err := writeFile(filename, code, 0644)
 	assertNil(err)
 }
 
-func generateDAOCode(args *Args, t *parser.Table) []byte {
+func generateDAOCode(cfg *Config, t *parser.Table) []byte {
 	var err error
 	var buf bytes.Buffer
 
-	pkgName := getBasePkgName(args.DAOPkg)
+	pkgName := getBasePkgName(cfg.DAOPkg)
 	headerData := map[string]interface{}{
 		"PkgName": pkgName,
 	}
-	if args.DAOPkg != args.ModelPkg {
-		headerData["ModelPkg"] = args.ModelPkg
+	if cfg.DAOPkg != cfg.ModelPkg {
+		headerData["ModelPkg"] = cfg.ModelPkg
 	}
 	err = headerTmpl.Execute(&buf, headerData)
 	assertNil(err)
 
-	daoMethods := getDAOMethods(args, t)
+	daoMethods := getDAOMethods(cfg, t)
 	err = storeTmpl.ExecuteTemplate(&buf, "dao", map[string]interface{}{
 		"Table":   t,
 		"Methods": daoMethods,
@@ -82,31 +87,29 @@ func generateDAOCode(args *Args, t *parser.Table) []byte {
 			data = t
 		default:
 			cq := parser.ParseQuery(t, q)
-			if cq.IsMGet() {
+			if cq.IsMany() {
 				tmpl = "customMGet"
 			} else {
 				tmpl = "customGet"
 			}
-			data = map[string]interface{}{
-				"Table": t,
-			}
+			data = cq
 		}
 		err = storeTmpl.ExecuteTemplate(&buf, tmpl, data)
 		assertNil(err)
 	}
 
 	code := buf.Bytes()
-	if !args.DisableFormat {
+	if !cfg.DisableFormat {
 		code, err = format.Source(code)
 		assertNil(err)
 	}
 	return code
 }
 
-func getDAOMethods(args *Args, t *parser.Table) (methods []string) {
+func getDAOMethods(cfg *Config, t *parser.Table) (methods []string) {
 	pkgPrefix := ""
-	if args.ModelPkg != args.DAOPkg {
-		modelPkgName := getBasePkgName(args.ModelPkg)
+	if cfg.ModelPkg != cfg.DAOPkg {
+		modelPkgName := getBasePkgName(cfg.ModelPkg)
 		pkgPrefix = modelPkgName + "."
 	}
 
@@ -139,7 +142,7 @@ func getDAOMethods(args *Args, t *parser.Table) (methods []string) {
 			methods = append(methods, sig)
 		default:
 			cq := parser.ParseQuery(t, q)
-			if cq.IsMGet() {
+			if cq.IsMany() {
 				sig := fmt.Sprintf("%s(ctx context.Context, %s, opts ...dbhlp.Opt) (%s%sList, error)",
 					cq.Name, cq.ArgList(), pkgPrefix, t.TypeName())
 				methods = append(methods, sig)
@@ -264,9 +267,9 @@ func (p *{{ .DaoImplName }}) Update(ctx context.Context, {{ .PKVarName }} int64,
 `)
 
 	mustParse("customGet", `
-func (p *{{ .Table.DaoImplName }}) {{ .FuncName }}(ctx context.Context, {{ .ArgList }}, opts ...dbhlp.Opt) (*{{ .Table.PkgPrefix }}{{ .Table.TypeName }}, error) {
+func (p *{{ .Table.DaoImplName }}) {{ .Name }}(ctx context.Context, {{ .ArgList }}, opts ...dbhlp.Opt) (*{{ .Table.PkgPrefix }}{{ .Table.TypeName }}, error) {
 	conn := dbhlp.GetSession(p.db, opts...)
-	tableName := {{ .TableNameConst }}
+	tableName := {{ .Table.TableNameConst }}
 	var out = &{{ .Table.PkgPrefix }}{{ .Table.TypeName }}{}
 	err := conn.WithContext(ctx).Table(tableName).
 		Where({{ .Where }}).
@@ -279,9 +282,9 @@ func (p *{{ .Table.DaoImplName }}) {{ .FuncName }}(ctx context.Context, {{ .ArgL
 `)
 
 	mustParse("customMGet", `
-func (p *{{ .Table.DaoImplName }}) {{ .FuncName }}(ctx context.Context, {{ .ArgList }}, opts ...dbhlp.Opt) ({{ .Table.PkgPrefix }}{{ .Table.TypeName }}List, error) {
+func (p *{{ .Table.DaoImplName }}) {{ .Name }}(ctx context.Context, {{ .ArgList }}, opts ...dbhlp.Opt) ({{ .Table.PkgPrefix }}{{ .Table.TypeName }}List, error) {
 	conn := dbhlp.GetSession(p.db, opts...)
-	tableName := {{ .TableNameConst }}
+	tableName := {{ .Table.TableNameConst }}
 	var out {{ .Table.PkgPrefix }}{{ .Table.TypeName }}List
 	err := conn.WithContext(ctx).Table(tableName).
 		Where({{ .Where }}).

@@ -1,14 +1,34 @@
 package dbhlp
 
 import (
+	"sync"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/hints"
 	"gorm.io/plugin/dbresolver"
 )
 
+var optPool = sync.Pool{
+	New: func() interface{} {
+		return new(Options)
+	},
+}
+
+func reuseOptions(opt *Options) {
+	hints_ := opt.IndexHints[:0]
+	*opt = Options{}
+	opt.IndexHints = hints_
+	optPool.Put(opt)
+}
+
 func GetSession(db *gorm.DB, opts ...Opt) *gorm.DB {
-	return new(Options).apply(opts...).getSession(db)
+	if len(opts) == 0 {
+		return db
+	}
+	o := optPool.Get().(*Options)
+	defer reuseOptions(o)
+	return o.apply(opts...).getSession(db)
 }
 
 type Options struct {

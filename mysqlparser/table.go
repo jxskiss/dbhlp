@@ -1,8 +1,8 @@
 package mysqlparser
 
 import (
-	"github.com/jxskiss/gopkg/v2/strutil"
-	"github.com/pingcap/parser/ast"
+	"github.com/jxskiss/gopkg/v2/utils/strutil"
+	"github.com/pingcap/tidb/parser/ast"
 )
 
 type Table struct {

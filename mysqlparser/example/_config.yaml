@@ -1,0 +1,23 @@
+charset: ""
+collation: ""
+dao_pkg: "github.com/jxskiss/dbhlp/mysqlparser/example/dao"
+model_pkg: "github.com/jxskiss/dbhlp/mysqlparser/example/model"
+
+queries:
+  example_setting:
+    - "@default"
+    - "GetByTenantIdUserId(tenant_id, user_id)"
+    - "one:GetCheckIsSomething(tenant_id, user_id, is_something)"
+    - "MGetByUserIDs(tenant_id, user_id.in)"
+    - "MGetByUserIdRange(tenant_id, user_id.gte)"
+    - "many:ListByTenantId(tenant_id)"
+
+columns_config:
+  example_setting:
+    bitmap_cols: [ "status" ]
+    bool_cols: [ "is_something" ]
+    json_cols:
+      some_json_data_1: ""  # sqlutil.JSON
+      some_json_data_2: CustomJSOMDataObject
+    protobuf_cols:
+      config: ExampleSetting_Config

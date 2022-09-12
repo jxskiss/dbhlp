@@ -227,3 +227,25 @@ CREATE TABLE IF NOT EXISTS `rental_invoice` (
     ON DELETE RESTRICT
     ON UPDATE CASCADE)
     ENGINE = InnoDB;
+
+
+--
+-- more examples to demonstrate advanced features
+--
+
+create table example_setting
+(
+    id             bigint unsigned,
+    tenant_id      bigint unsigned,
+    user_id        bigint unsigned,
+    some_json_data_1 text,
+    some_json_data_2 text,
+    config         blob,
+    status         int unsigned      not null,
+    is_something   tinyint default 0 not null,
+    name_hash      varbinary(72)     not null,
+    create_time    datetime          not null,
+    update_time    datetime          not null,
+
+    primary key (id)
+);

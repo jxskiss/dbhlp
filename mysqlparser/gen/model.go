@@ -4,32 +4,36 @@ import (
 	"bytes"
 	"go/format"
 	"log"
-	"os"
 	"text/template"
 
 	parser "github.com/jxskiss/dbhlp/mysqlparser"
 )
 
-func generateModels(args *Args, tables []*parser.Table) {
+func generateModels(cfg *Config, tables []*parser.Table) {
 	var code []byte
+
+	dirName := getFileName(cfg.ModelPkg, "")
+	err := mkdirIfNotExists(dirName, 0)
+	assertNil(err)
+
 	for _, t := range tables {
-		code = generateModelCode(args, t)
+		code = generateModelCode(cfg, t)
 		if len(code) == 0 {
 			continue
 		}
 
-		modelFile := getFileName(args.ModelPkg, t.Name+"_model_gen.go")
+		modelFile := getFileName(cfg.ModelPkg, t.Name+"_model_gen.go")
 		log.Printf("writing model file: %s", modelFile)
-		err := os.WriteFile(modelFile, code, 0644)
+		err = writeFile(modelFile, code, 0644)
 		assertNil(err)
 	}
 }
 
-func generateModelCode(args *Args, table *parser.Table) []byte {
+func generateModelCode(cfg *Config, table *parser.Table) []byte {
 	var err error
 	var buf bytes.Buffer
 
-	pkgName := getBasePkgName(args.ModelPkg)
+	pkgName := getBasePkgName(cfg.ModelPkg)
 	err = headerTmpl.Execute(&buf, map[string]interface{}{
 		"PkgName": pkgName,
 	})
@@ -42,7 +46,7 @@ func generateModelCode(args *Args, table *parser.Table) []byte {
 	assertNil(err)
 
 	code := buf.Bytes()
-	if !args.DisableFormat {
+	if !cfg.DisableFormat {
 		code, err = format.Source(code)
 		assertNil(err)
 	}
@@ -90,7 +94,7 @@ func (p {{ .TypeName }}List) Pluck{{ .PKFieldName }}s() []int64 {
 {{ range .Columns }}
 
 {{ if .IsProtobuf }}
-func {{ .GetterFuncName }}(buf []byte) (proto.Message, error) {
+func {{ .GetterFuncName }}(buf []byte) (interface{}, error) {
 	var err error
 	x := &{{ .PBType }}{}
 	if len(buf) > 0 {
@@ -109,7 +113,33 @@ func (p *{{ $table.TypeName }}) Get{{ .GoName }}() (*{{ .PBType }}, error) {
 }
 
 func (p *{{ $table.TypeName }}) Set{{ .GoName }}({{ .VarName }} *{{ .PBType }}) {
-	_ = p.{{ .GoName }}.Set({{ .VarName }})
+	buf, _ := proto.Marshal({{ .VarName }})
+	p.{{ .GoName }}.Set(buf, {{ .VarName }})
+}
+{{ end }}
+
+{{ if .IsJSON }}
+func {{ .GetterFuncName }}(buf []byte) (interface{}, error) {
+	var err error
+	x := &{{ .JSONType }}{}
+	if len(buf) > 0 {
+		err = json.Unmarshal(buf, x)
+	}
+	return x, err
+}
+
+func (p *{{ $table.TypeName }}) Get{{ .GoName }}() (*{{ .JSONType }}, error) {
+	out, err := p.{{ .GoName }}.Get({{ .GetterFuncName }})
+	if err != nil {
+		log.Printf("failed unmarshal {{ .JSONType }}, {{ $table.PrimaryKey }}= %v, err= %v", p.{{ $table.PKFieldName }}, err)
+		return nil, err
+	}
+	return out.(*{{ .JSONType }}), nil
+}
+
+func (p *{{ $table.TypeName }}) Set{{ .GoName }}({{ .VarName }} *{{ .JSONType }}) {
+	buf, _ := json.Marshal({{ .VarName }})
+	p.{{ .GoName }}.Set(buf, {{ .VarName }})
 }
 {{ end }}
 

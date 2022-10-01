@@ -45,7 +45,7 @@ func (c *Config) DefaultQueries(t *Table) []string {
 	return []string{
 		"Get", "GetWhere",
 		"MGet", "MGetWhere",
-		"Update",
+		"Create", "Update",
 	}
 }
 

@@ -4,9 +4,8 @@
 package dao
 
 import (
-	"gorm.io/gorm"
-
 	"github.com/jxskiss/dbhlp"
+	"gorm.io/gorm"
 )
 
 const tableName_Customer = "customer"
@@ -15,7 +14,7 @@ type CustomerDAO interface {
 	customerCustomMethods
 }
 
-func GetCustomerDAO(conn dbhlp.MySQLConn) CustomerDAO {
+func GetCustomerDAO(conn dbhlp.DBConn) CustomerDAO {
 	return &customerDAOImpl{
 		db: conn,
 	}

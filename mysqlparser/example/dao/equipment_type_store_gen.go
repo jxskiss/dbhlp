@@ -4,9 +4,8 @@
 package dao
 
 import (
-	"gorm.io/gorm"
-
 	"github.com/jxskiss/dbhlp"
+	"gorm.io/gorm"
 )
 
 const tableName_EquipmentType = "equipment_type"
@@ -15,7 +14,7 @@ type EquipmentTypeDAO interface {
 	equipmentTypeCustomMethods
 }
 
-func GetEquipmentTypeDAO(conn dbhlp.MySQLConn) EquipmentTypeDAO {
+func GetEquipmentTypeDAO(conn dbhlp.DBConn) EquipmentTypeDAO {
 	return &equipmentTypeDAOImpl{
 		db: conn,
 	}

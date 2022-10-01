@@ -6,10 +6,9 @@ package dao
 import (
 	"context"
 
+	"github.com/jxskiss/dbhlp"
 	"github.com/jxskiss/errors"
 	"gorm.io/gorm"
-
-	"github.com/jxskiss/dbhlp"
 
 	"github.com/jxskiss/dbhlp/mysqlparser/example/model"
 )
@@ -30,7 +29,7 @@ type ExampleSettingDAO interface {
 	exampleSettingCustomMethods
 }
 
-func GetExampleSettingDAO(conn dbhlp.MySQLConn) ExampleSettingDAO {
+func GetExampleSettingDAO(conn dbhlp.DBConn) ExampleSettingDAO {
 	return &exampleSettingDAOImpl{
 		db: conn,
 	}

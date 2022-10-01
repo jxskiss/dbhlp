@@ -14,7 +14,7 @@ type VehicleDAO interface {
 	vehicleCustomMethods
 }
 
-func GetVehicleDAO(conn dbhlp.MySQLConn) VehicleDAO {
+func GetVehicleDAO(conn dbhlp.DBConn) VehicleDAO {
 	return &vehicleDAOImpl{
 		db: conn,
 	}

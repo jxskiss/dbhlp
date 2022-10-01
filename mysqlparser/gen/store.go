@@ -175,7 +175,7 @@ type {{ .Table.TypeName }}DAO interface {
 	{{ .Table.VarName }}CustomMethods
 }
 
-func Get{{ .Table.TypeName }}DAO(conn dbhlp.MySQLConn) {{ .Table.TypeName }}DAO {
+func Get{{ .Table.TypeName }}DAO(conn dbhlp.DBConn) {{ .Table.TypeName }}DAO {
 	return &{{ .Table.DaoImplName }}{
 		db: conn,
 	}

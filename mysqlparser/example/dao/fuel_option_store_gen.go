@@ -14,7 +14,7 @@ type FuelOptionDAO interface {
 	fuelOptionCustomMethods
 }
 
-func GetFuelOptionDAO(conn dbhlp.MySQLConn) FuelOptionDAO {
+func GetFuelOptionDAO(conn dbhlp.DBConn) FuelOptionDAO {
 	return &fuelOptionDAOImpl{
 		db: conn,
 	}

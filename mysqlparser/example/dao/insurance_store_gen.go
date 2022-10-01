@@ -14,7 +14,7 @@ type InsuranceDAO interface {
 	insuranceCustomMethods
 }
 
-func GetInsuranceDAO(conn dbhlp.MySQLConn) InsuranceDAO {
+func GetInsuranceDAO(conn dbhlp.DBConn) InsuranceDAO {
 	return &insuranceDAOImpl{
 		db: conn,
 	}

@@ -14,7 +14,7 @@ type EquipmentDAO interface {
 	equipmentCustomMethods
 }
 
-func GetEquipmentDAO(conn dbhlp.MySQLConn) EquipmentDAO {
+func GetEquipmentDAO(conn dbhlp.DBConn) EquipmentDAO {
 	return &equipmentDAOImpl{
 		db: conn,
 	}

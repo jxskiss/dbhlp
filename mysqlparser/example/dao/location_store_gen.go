@@ -14,7 +14,7 @@ type LocationDAO interface {
 	locationCustomMethods
 }
 
-func GetLocationDAO(conn dbhlp.MySQLConn) LocationDAO {
+func GetLocationDAO(conn dbhlp.DBConn) LocationDAO {
 	return &locationDAOImpl{
 		db: conn,
 	}

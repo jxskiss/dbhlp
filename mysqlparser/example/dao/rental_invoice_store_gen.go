@@ -14,7 +14,7 @@ type RentalInvoiceDAO interface {
 	rentalInvoiceCustomMethods
 }
 
-func GetRentalInvoiceDAO(conn dbhlp.MySQLConn) RentalInvoiceDAO {
+func GetRentalInvoiceDAO(conn dbhlp.DBConn) RentalInvoiceDAO {
 	return &rentalInvoiceDAOImpl{
 		db: conn,
 	}
